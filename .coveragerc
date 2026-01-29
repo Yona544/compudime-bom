@@ -1,0 +1,14 @@
+[run]
+source = api,database
+omit = 
+    */tests/*
+    */__pycache__/*
+    */alembic/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+show_missing = true

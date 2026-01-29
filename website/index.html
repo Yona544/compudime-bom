@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill of Materials - Recipe Cost Management | Compudime</title>
+    <meta name="description" content="BOM - Professional recipe costing, ingredient management, and production planning software that integrates seamlessly with Compudime POS.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .logo-text {
+            font-weight: 700;
+            font-size: 22px;
+            color: var(--dark);
+        }
+        
+        .logo-text span {
+            color: var(--primary);
+        }
+        
+        nav {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        
+        nav a {
+            color: var(--gray);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover {
+            color: var(--primary);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-white {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .btn-white:hover {
+            background: var(--light);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #1d4ed8 100%);
+            padding: 160px 0 100px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+        
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 64px;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        /* Section Styling */
+        section {
+            padding: 100px 0;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        
+        .section-label {
+            display: inline-block;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 16px;
+        }
+        
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Use Cases Section */
+        .use-cases {
+            background: var(--light);
+        }
+        
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        
+        .use-case-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .use-case-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.1);
+        }
+        
+        .use-case-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+        }
+        
+        .use-case-card h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+        
+        .use-case-card p {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+        
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 48px;
+            align-items: center;
+        }
+        
+        .features-image {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+        }
+        
+        .features-mockup {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .mockup-header {
+            background: var(--gradient);
+            padding: 16px 24px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .mockup-content {
+            padding: 24px;
+        }
+        
+        .mockup-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .mockup-table th,
+        .mockup-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .mockup-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        .mockup-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            margin-top: 16px;
+            border-top: 2px solid var(--primary);
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .features-list {
+            list-style: none;
+        }
+        
+        .features-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .feature-check {
+            width: 28px;
+            height: 28px;
+            background: #dcfce7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .feature-text h4 {
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+        
+        .feature-text p {
+            color: var(--gray);
+            font-size: 15px;
+        }
+        
+        /* Integration Section */
+        .integration {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 64px;
+            align-items: center;
+        }
+        
+        .integration-content h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        
+        .integration-content p {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-bottom: 32px;
+            line-height: 1.8;
+        }
+        
+        .integration-features {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .int-feature {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .int-feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .int-feature-text h4 {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .int-feature-text p {
+            opacity: 0.8;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .integration-visual {
+            position: relative;
+        }
+        
+        .integration-diagram {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .diagram-center {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 40px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .diagram-items {
+            display: flex;
+            justify-content: space-around;
+            gap: 16px;
+        }
+        
+        .diagram-item {
+            background: rgba(255,255,255,0.15);
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        /* Pricing Preview */
+        .pricing {
+            background: var(--light);
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--primary);
+            position: relative;
+            transform: scale(1.05);
+        }
+        
+        .pricing-card.featured::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .pricing-card h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-card .price {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 16px 0;
+        }
+        
+        .pricing-card .price span {
+            font-size: 16px;
+            color: var(--gray);
+            font-weight: 400;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin: 32px 0;
+            text-align: left;
+        }
+        
+        .pricing-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--secondary);
+            font-weight: 700;
+        }
+        
+        /* CTA Section */
+        .cta {
+            background: var(--gradient);
+            padding: 100px 0;
+            text-align: center;
+            color: white;
+        }
+        
+        .cta h2 {
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+        
+        .cta p {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 64px 0 32px;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 64px;
+            margin-bottom: 48px;
+        }
+        
+        .footer-brand p {
+            opacity: 0.7;
+            margin-top: 16px;
+            line-height: 1.8;
+        }
+        
+        .footer-col h4 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .footer-col a {
+            display: block;
+            opacity: 0.8;
+            margin-bottom: 12px;
+            transition: opacity 0.2s;
+        }
+        
+        .footer-col a:hover {
+            opacity: 1;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 32px;
+            display: flex;
+            justify-content: space-between;
+            opacity: 0.6;
+            font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .use-cases-grid,
+            .pricing-cards {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            
+            .features-grid,
+            .integration-grid,
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+            }
+            
+            nav {
+                display: none;
+            }
+            
+            .hero-stats {
+                gap: 32px;
+                flex-wrap: wrap;
+            }
+            
+            .section-title {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-inner">
+            <a href="#" class="logo">
+                <div class="logo-icon">B</div>
+                <div class="logo-text">Compu<span>dime</span> BOM</div>
+            </a>
+            <nav>
+                <a href="#use-cases">Use Cases</a>
+                <a href="#features">Features</a>
+                <a href="#integration">Integration</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#contact" class="btn btn-primary">Get Started</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">🚀 Now Integrated with Compudime POS</div>
+                <h1>Master Your Food Costs with Precision</h1>
+                <p>The Bill of Materials system that transforms recipe management into real profit margins. Track ingredients, calculate costs, and plan production—all in one place.</p>
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-white">Request Demo</a>
+                    <a href="#features" class="btn btn-outline" style="border-color: white; color: white;">Learn More</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">15%</div>
+                        <div class="stat-label">Average Cost Savings</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">5min</div>
+                        <div class="stat-label">Recipe Costing Time</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">POS Integration</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section class="use-cases" id="use-cases">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Who It's For</div>
+                <h2 class="section-title">Built for Food Businesses Like Yours</h2>
+                <p class="section-subtitle">From single-location delis to multi-store supermarkets, BOM scales with your operation.</p>
+            </div>
+            <div class="use-cases-grid">
+                <div class="use-case-card">
+                    <div class="use-case-icon">🏪</div>
+                    <h3>Supermarket Delis</h3>
+                    <p>Track prepared food costs across rotisserie chickens, salad bars, hot food stations, and grab-and-go items. Know your true margins on every item.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">🍞</div>
+                    <h3>In-Store Bakeries</h3>
+                    <p>Scale recipes for daily production, manage ingredient yields, and price baked goods profitably. Handle sub-recipes like doughs and fillings with ease.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">🍳</div>
+                    <h3>Restaurants & Cafes</h3>
+                    <p>Full menu costing, portion control, and allergen tracking. Generate prep lists and shopping orders automatically from your sales forecast.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Features</div>
+                <h2 class="section-title">Everything You Need to Control Food Costs</h2>
+                <p class="section-subtitle">Powerful tools that work together to give you complete visibility into your food operation.</p>
+            </div>
+            <div class="features-grid">
+                <div class="features-image">
+                    <div class="features-mockup">
+                        <div class="mockup-header">Recipe Cost Calculator</div>
+                        <div class="mockup-content">
+                            <table class="mockup-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ingredient</th>
+                                        <th>Qty</th>
+                                        <th>Unit Cost</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Chicken Breast</td>
+                                        <td>2 lb</td>
+                                        <td>$4.99/lb</td>
+                                        <td>$9.98</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Olive Oil</td>
+                                        <td>2 tbsp</td>
+                                        <td>$0.18/tbsp</td>
+                                        <td>$0.36</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Garlic</td>
+                                        <td>4 cloves</td>
+                                        <td>$0.08/clove</td>
+                                        <td>$0.32</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Lemon</td>
+                                        <td>1 ea</td>
+                                        <td>$0.50/ea</td>
+                                        <td>$0.50</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="mockup-total">
+                                <span>Recipe Cost (4 portions)</span>
+                                <span>$11.16</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; color: #64748b; font-size: 14px;">
+                                <span>Cost per portion: $2.79</span>
+                                <span style="color: #10b981; font-weight: 600;">Food Cost: 28%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="features-content">
+                    <ul class="features-list">
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Intelligent Unit Conversion</h4>
+                                <p>Automatically convert between weight, volume, and count. Input in cups, output in grams—BOM handles the math.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Sub-Recipe Support</h4>
+                                <p>Build complex recipes from simpler components. Your house marinara can be an ingredient in your lasagna recipe.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Yield & Waste Tracking</h4>
+                                <p>Account for prep waste automatically. Set yield percentages per ingredient (80% yield on trimmed chicken) for accurate costing.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Instant Recipe Scaling</h4>
+                                <p>Scale any recipe from 4 to 400 portions with one click. Perfect for catering orders or production planning.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Allergen & Nutrition Tracking</h4>
+                                <p>Automatically aggregate allergens from ingredients. Generate nutrition labels for packaged items.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOM Generation Section -->
+    <section style="background: var(--light);">
+        <div class="container">
+            <div class="features-grid" style="direction: rtl;">
+                <div class="features-image" style="direction: ltr;">
+                    <div class="features-mockup">
+                        <div class="mockup-header">📋 Production BOM - Monday Prep</div>
+                        <div class="mockup-content">
+                            <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+                                <strong>Planned Production:</strong><br>
+                                <span style="color: #64748b; font-size: 14px;">
+                                    Chicken Parmesan × 50 | Caesar Salad × 30 | Garlic Bread × 80
+                                </span>
+                            </div>
+                            <table class="mockup-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ingredient</th>
+                                        <th>Need</th>
+                                        <th>On Hand</th>
+                                        <th>Order</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Chicken Breast</td>
+                                        <td>25 lb</td>
+                                        <td>10 lb</td>
+                                        <td style="color: #dc2626; font-weight: 600;">15 lb</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Romaine Lettuce</td>
+                                        <td>8 heads</td>
+                                        <td>3 heads</td>
+                                        <td style="color: #dc2626; font-weight: 600;">5 heads</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Parmesan</td>
+                                        <td>4 lb</td>
+                                        <td>5 lb</td>
+                                        <td style="color: #10b981;">✓ In Stock</td>
+                                    </tr>
+                                    <tr>
+                                        <td>French Bread</td>
+                                        <td>20 loaves</td>
+                                        <td>0</td>
+                                        <td style="color: #dc2626; font-weight: 600;">20 loaves</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div style="margin-top: 16px; padding: 16px; background: #fef3c7; border-radius: 8px; font-size: 14px;">
+                                <strong>⚠️ Order Required:</strong> $187.50 estimated cost for missing items
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="features-content" style="direction: ltr;">
+                    <div class="section-label">Production Planning</div>
+                    <h2 class="section-title" style="font-size: 36px;">Generate Smart Shopping Lists</h2>
+                    <p style="color: var(--gray); margin-bottom: 32px; font-size: 18px;">
+                        Tell BOM what you're making and how much. It calculates exactly what you need to order, factoring in what's already in inventory.
+                    </p>
+                    <ul class="features-list">
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Multi-Recipe Aggregation</h4>
+                                <p>Combine ingredients from multiple recipes into one consolidated order list.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Inventory Awareness</h4>
+                                <p>Subtract on-hand stock automatically. Only order what you actually need.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-check">✓</div>
+                            <div class="feature-text">
+                                <h4>Purchase Order Export</h4>
+                                <p>Export orders grouped by supplier, ready to send or import into your ordering system.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integration Section -->
+    <section class="integration" id="integration">
+        <div class="container">
+            <div class="integration-grid">
+                <div class="integration-content">
+                    <h2>Seamless Compudime POS Integration</h2>
+                    <p>BOM connects directly to your Compudime POS system, turning sales data into actionable production plans. No more guessing how much to prep—let your actual sales drive your ordering.</p>
+                    <div class="integration-features">
+                        <div class="int-feature">
+                            <div class="int-feature-icon">📊</div>
+                            <div class="int-feature-text">
+                                <h4>Sales-Driven BOMs</h4>
+                                <p>Generate shopping lists based on yesterday's sales or weekly averages</p>
+                            </div>
+                        </div>
+                        <div class="int-feature">
+                            <div class="int-feature-icon">💰</div>
+                            <div class="int-feature-text">
+                                <h4>Real Margin Tracking</h4>
+                                <p>Compare actual food costs against POS revenue in real-time</p>
+                            </div>
+                        </div>
+                        <div class="int-feature">
+                            <div class="int-feature-icon">🔄</div>
+                            <div class="int-feature-text">
+                                <h4>Price Sync</h4>
+                                <p>Update recipe costs when supplier prices change in your system</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="integration-visual">
+                    <div class="integration-diagram">
+                        <div class="diagram-center">
+                            <div style="text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 4px;">🔗</div>
+                                <div>BOM</div>
+                            </div>
+                        </div>
+                        <div class="diagram-items">
+                            <div class="diagram-item">📟 Compudime POS</div>
+                            <div class="diagram-item">📦 Inventory</div>
+                            <div class="diagram-item">📒 QuickBooks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Pricing</div>
+                <h2 class="section-title">Simple, Transparent Pricing</h2>
+                <p class="section-subtitle">Free for Compudime POS customers. Standalone pricing coming soon.</p>
+            </div>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$0<span>/mo</span></div>
+                    <p style="color: var(--gray);">For Compudime POS customers</p>
+                    <ul class="pricing-features">
+                        <li>50 recipes</li>
+                        <li>Unlimited ingredients</li>
+                        <li>Basic cost reports</li>
+                        <li>BOM generation</li>
+                        <li>Email support</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-outline" style="width: 100%;">Get Started</a>
+                </div>
+                <div class="pricing-card featured">
+                    <h3>Professional</h3>
+                    <div class="price">$49<span>/mo</span></div>
+                    <p style="color: var(--gray);">For growing operations</p>
+                    <ul class="pricing-features">
+                        <li>Unlimited recipes</li>
+                        <li>Sub-recipe support</li>
+                        <li>Inventory tracking</li>
+                        <li>POS integration</li>
+                        <li>Allergen reports</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-primary" style="width: 100%;">Start Free Trial</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">Custom</div>
+                    <p style="color: var(--gray);">Multi-location chains</p>
+                    <ul class="pricing-features">
+                        <li>Everything in Pro</li>
+                        <li>Multi-store support</li>
+                        <li>Custom integrations</li>
+                        <li>API access</li>
+                        <li>Dedicated support</li>
+                        <li>On-site training</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-outline" style="width: 100%;">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="contact">
+        <div class="container">
+            <h2>Ready to Take Control of Your Food Costs?</h2>
+            <p>Schedule a demo and see how BOM can transform your food business operations.</p>
+            <div class="cta-buttons">
+                <a href="mailto:sales@compudime.com?subject=BOM Demo Request" class="btn btn-white">Request Demo</a>
+                <a href="https://compudime.com" class="btn btn-outline" style="border-color: white; color: white;">Visit Compudime.com</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">B</div>
+                        <div class="logo-text" style="color: white;">Compu<span>dime</span> BOM</div>
+                    </div>
+                    <p>Professional recipe cost management and bill of materials generation, integrated with the Compudime POS ecosystem.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="#integration">Integrations</a>
+                    <a href="#">API Docs</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="https://compudime.com">About Compudime</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <a href="#">Help Center</a>
+                    <a href="#">Documentation</a>
+                    <a href="#">Training</a>
+                    <a href="mailto:support@compudime.com">support@compudime.com</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Computer Dimensions. All rights reserved.</span>
+                <span>Privacy Policy · Terms of Service</span>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
