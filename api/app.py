@@ -73,30 +73,35 @@ Recipe and ingredient cost management for food businesses.
         allow_headers=["*"],
     )
     
-    # Include routers
+    # Serve frontend static files in production (must be BEFORE routers for "/" override)
+    frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+    if frontend_dist.exists():
+        # Serve assets directory
+        app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
+        
+        # Serve index.html at root for SPA
+        @app.get("/", include_in_schema=False)
+        async def serve_spa_root():
+            return FileResponse(frontend_dist / "index.html")
+    
+    # Include API routers
     app.include_router(health_router)
     app.include_router(ingredients_router)
     app.include_router(recipes_router)
     app.include_router(bom_router)
     app.include_router(users_router)
     
-    # Serve frontend static files in production
-    frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+    # SPA fallback for client-side routing (must be AFTER routers)
     if frontend_dist.exists():
-        # Serve assets directory
-        app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
-        
-        # Serve index.html for all non-API routes (SPA fallback)
-        @app.get("/{full_path:path}")
-        async def serve_spa(request: Request, full_path: str):
-            # Don't intercept API routes
-            if full_path.startswith("api/") or full_path in ["docs", "redoc", "openapi.json"]:
-                return None
+        @app.get("/{full_path:path}", include_in_schema=False)
+        async def serve_spa_fallback(request: Request, full_path: str):
+            # Don't intercept API routes or docs
+            if full_path.startswith("api/") or full_path in ["docs", "redoc", "openapi.json", "health"]:
+                # Return 404 - let FastAPI handle it
+                from fastapi.responses import JSONResponse
+                return JSONResponse({"detail": "Not Found"}, status_code=404)
             # Serve index.html for SPA routing
-            index_path = frontend_dist / "index.html"
-            if index_path.exists():
-                return FileResponse(index_path)
-            return {"error": "Not found"}
+            return FileResponse(frontend_dist / "index.html")
     
     return app
 
