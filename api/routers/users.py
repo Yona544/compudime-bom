@@ -78,11 +78,12 @@ def create_tenant(
             detail="Email already registered",
         )
     
-    user = auth_service.create_user(data.email, data.password)
+    user = auth_service.create_user(data.email, data.password, data.name)
     
     return UserWithApiKey(
         id=user.id,
         email=user.email,
+        name=user.name,
         is_admin=user.is_admin,
         is_active=user.is_active,
         created_at=user.created_at,

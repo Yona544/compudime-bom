@@ -6,8 +6,8 @@ import { X, Loader2, UserPlus, Check, Copy } from 'lucide-react';
 export default function Tenants() {
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string } | null>(null);
+  const [formData, setFormData] = useState({ email: '', name: '', password: '' });
+  const [createdCredentials, setCreatedCredentials] = useState<{ email: string; name: string; password: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const { data: tenants, isLoading } = useQuery({
@@ -16,11 +16,11 @@ export default function Tenants() {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => authApi.createTenant(formData.email, formData.password),
+    mutationFn: () => authApi.createTenant(formData.email, formData.name, formData.password),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
-      setCreatedCredentials({ email: formData.email, password: formData.password });
-      setFormData({ email: '', password: '' });
+      setCreatedCredentials({ email: formData.email, name: formData.name, password: formData.password });
+      setFormData({ email: '', name: '', password: '' });
     },
   });
 
@@ -32,13 +32,13 @@ export default function Tenants() {
   const closeModal = () => {
     setShowModal(false);
     setCreatedCredentials(null);
-    setFormData({ email: '', password: '' });
+    setFormData({ email: '', name: '', password: '' });
   };
 
   const copyCredentials = () => {
     if (createdCredentials) {
       navigator.clipboard.writeText(
-        `Email: ${createdCredentials.email}\nPassword: ${createdCredentials.password}`
+        `Business: ${createdCredentials.name}\nEmail: ${createdCredentials.email}\nPassword: ${createdCredentials.password}`
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -83,14 +83,17 @@ export default function Tenants() {
             {tenants.data.map((tenant) => (
               <div key={tenant.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium text-gray-900 truncate">{tenant.email}</p>
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-900 truncate">{tenant.name || 'No name'}</p>
+                    <p className="text-sm text-gray-500 truncate">{tenant.email}</p>
+                  </div>
+                  <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
                     tenant.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                   }`}>
                     {tenant.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-2">
                   Created {new Date(tenant.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -102,6 +105,7 @@ export default function Tenants() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
                   <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Created</th>
@@ -110,7 +114,8 @@ export default function Tenants() {
               <tbody className="divide-y divide-gray-100">
                 {tenants.data.map((tenant) => (
                   <tr key={tenant.id} className="hover:bg-gray-50">
-                    <td className="px-4 lg:px-6 py-4 font-medium text-gray-900">{tenant.email}</td>
+                    <td className="px-4 lg:px-6 py-4 font-medium text-gray-900">{tenant.name || '—'}</td>
+                    <td className="px-4 lg:px-6 py-4 text-gray-600">{tenant.email}</td>
                     <td className="px-4 lg:px-6 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                         tenant.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
@@ -149,6 +154,7 @@ export default function Tenants() {
                     Account created! Share these credentials:
                   </p>
                   <div className="bg-white rounded p-3 font-mono text-sm break-all">
+                    <p><strong>Business:</strong> {createdCredentials.name}</p>
                     <p><strong>Email:</strong> {createdCredentials.email}</p>
                     <p><strong>Password:</strong> {createdCredentials.password}</p>
                   </div>
@@ -171,6 +177,20 @@ export default function Tenants() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Business Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Acme Restaurant"
+                    required
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email Address *

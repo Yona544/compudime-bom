@@ -68,12 +68,13 @@ class AuthService:
             User.is_active == True,
         ).first()
     
-    def create_user(self, email: str, password: str, is_admin: bool = False) -> User:
+    def create_user(self, email: str, password: str, name: str = None, is_admin: bool = False) -> User:
         """Create a new user with email and password."""
         api_key = generate_api_key()
         
         user = User(
             email=email,
+            name=name,
             password_hash=hash_password(password),
             api_key=api_key,
             is_admin=is_admin,

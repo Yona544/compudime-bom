@@ -80,6 +80,7 @@ export interface BOM {
 export interface LoginResponse {
   id: number;
   email: string;
+  name?: string;
   is_admin: boolean;
   api_key: string;
 }
@@ -87,6 +88,7 @@ export interface LoginResponse {
 export interface User {
   id: number;
   email: string;
+  name?: string;
   is_admin: boolean;
   is_active: boolean;
   created_at: string;
@@ -97,8 +99,8 @@ export const authApi = {
   login: (email: string, password: string) => 
     api.post<LoginResponse>('/api/v1/users/login', { email, password }),
   me: () => api.get<User>('/api/v1/users/me'),
-  createTenant: (email: string, password: string) =>
-    api.post<User & { api_key: string }>('/api/v1/users', { email, password }),
+  createTenant: (email: string, name: string, password: string) =>
+    api.post<User & { api_key: string }>('/api/v1/users', { email, name, password }),
   listTenants: () => api.get<User[]>('/api/v1/users'),
 };
 
