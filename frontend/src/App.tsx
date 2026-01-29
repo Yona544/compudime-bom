@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
-import { LayoutDashboard, UtensilsCrossed, ChefHat, ClipboardList, LogOut, Users } from 'lucide-react';
+import { LayoutDashboard, UtensilsCrossed, ChefHat, ClipboardList, LogOut, Users, Menu, X } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Ingredients from './pages/Ingredients';
 import Recipes from './pages/Recipes';
@@ -13,20 +13,46 @@ import Login from './pages/Login';
 const queryClient = new QueryClient();
 
 function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; onLogout: () => void; isAdmin: boolean }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const closeSidebar = () => setSidebarOpen(false);
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">
-            <span className="text-blue-600">BOM</span> Dashboard
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Recipe Cost Manager</p>
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        w-64 bg-white border-r border-gray-200 flex flex-col
+        transform transition-transform duration-200 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+              <span className="text-blue-600">BOM</span> Dashboard
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">Recipe Cost Manager</p>
+          </div>
+          <button 
+            onClick={closeSidebar}
+            className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
+          >
+            <X size={20} />
+          </button>
         </div>
         
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <NavLink
             to="/"
+            onClick={closeSidebar}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
@@ -39,6 +65,7 @@ function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; on
           
           <NavLink
             to="/ingredients"
+            onClick={closeSidebar}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
@@ -51,6 +78,7 @@ function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; on
           
           <NavLink
             to="/recipes"
+            onClick={closeSidebar}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
@@ -63,6 +91,7 @@ function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; on
           
           <NavLink
             to="/bom"
+            onClick={closeSidebar}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
@@ -76,6 +105,7 @@ function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; on
           {isAdmin && (
             <NavLink
               to="/tenants"
+              onClick={closeSidebar}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
@@ -90,7 +120,7 @@ function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; on
         
         <div className="p-4 border-t border-gray-200">
           <button
-            onClick={onLogout}
+            onClick={() => { closeSidebar(); onLogout(); }}
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 w-full transition-colors"
           >
             <LogOut size={20} />
@@ -100,9 +130,24 @@ function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; on
       </aside>
       
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile header */}
+        <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-4">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+          >
+            <Menu size={24} />
+          </button>
+          <h1 className="text-lg font-bold text-gray-900">
+            <span className="text-blue-600">BOM</span>
+          </h1>
+        </header>
+        
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

@@ -82,15 +82,15 @@ export default function BOMs() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Bill of Materials</h1>
-          <p className="text-gray-500">Generate shopping lists from your recipes</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Bill of Materials</h1>
+          <p className="text-sm sm:text-base text-gray-500">Generate shopping lists</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
         >
           <Plus size={20} />
           Generate BOM
@@ -114,34 +114,34 @@ export default function BOMs() {
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {boms.data.items.map((bom) => (
             <div key={bom.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div
-                className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="p-4 sm:p-6 cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={() => setExpandedId(expandedId === bom.id ? null : bom.id)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-purple-100 p-3 rounded-lg">
-                      <ClipboardList className="text-purple-600" size={24} />
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                    <div className="bg-purple-100 p-2 sm:p-3 rounded-lg flex-shrink-0">
+                      <ClipboardList className="text-purple-600" size={20} />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{bom.name}</h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate">{bom.name}</h3>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500 mt-1">
                         <span className="flex items-center gap-1">
                           <Calendar size={14} />
                           {bom.date}
                         </span>
                         <span className="flex items-center gap-1">
                           <DollarSign size={14} />
-                          ${parseFloat(bom.total_cost).toFixed(2)} total
+                          ${parseFloat(bom.total_cost).toFixed(2)}
                         </span>
-                        <span>{bom.ingredients.length} items</span>
+                        <span className="hidden sm:inline">{bom.ingredients.length} items</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -160,32 +160,52 @@ export default function BOMs() {
 
               {expandedId === bom.id && (
                 <div className="border-t border-gray-100">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Ingredient</th>
-                        <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Quantity</th>
-                        <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Unit Cost</th>
-                        <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Line Cost</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {bom.ingredients.map((ing, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 font-medium text-gray-900">{ing.ingredient_name}</td>
-                          <td className="px-6 py-4 text-gray-600">{parseFloat(ing.total_qty).toFixed(2)} {ing.unit}</td>
-                          <td className="px-6 py-4 text-gray-600">${parseFloat(ing.unit_cost).toFixed(4)}/{ing.unit}</td>
-                          <td className="px-6 py-4 font-semibold text-gray-900">${parseFloat(ing.line_cost).toFixed(2)}</td>
+                  {/* Mobile view */}
+                  <div className="sm:hidden divide-y divide-gray-100">
+                    {bom.ingredients.map((ing, idx) => (
+                      <div key={idx} className="p-4">
+                        <p className="font-medium text-gray-900">{ing.ingredient_name}</p>
+                        <div className="flex justify-between text-sm text-gray-500 mt-1">
+                          <span>{parseFloat(ing.total_qty).toFixed(2)} {ing.unit}</span>
+                          <span className="font-semibold text-gray-900">${parseFloat(ing.line_cost).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="p-4 bg-gray-50 flex justify-between font-semibold">
+                      <span>Total</span>
+                      <span>${parseFloat(bom.total_cost).toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Desktop view */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Ingredient</th>
+                          <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                          <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Unit Cost</th>
+                          <th className="text-left px-4 lg:px-6 py-3 text-xs font-medium text-gray-500 uppercase">Line Cost</th>
                         </tr>
-                      ))}
-                    </tbody>
-                    <tfoot className="bg-gray-50 font-semibold">
-                      <tr>
-                        <td colSpan={3} className="px-6 py-4 text-right text-gray-700">Total:</td>
-                        <td className="px-6 py-4 text-gray-900">${parseFloat(bom.total_cost).toFixed(2)}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {bom.ingredients.map((ing, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50">
+                            <td className="px-4 lg:px-6 py-4 font-medium text-gray-900">{ing.ingredient_name}</td>
+                            <td className="px-4 lg:px-6 py-4 text-gray-600">{parseFloat(ing.total_qty).toFixed(2)} {ing.unit}</td>
+                            <td className="px-4 lg:px-6 py-4 text-gray-600">${parseFloat(ing.unit_cost).toFixed(4)}/{ing.unit}</td>
+                            <td className="px-4 lg:px-6 py-4 font-semibold text-gray-900">${parseFloat(ing.line_cost).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot className="bg-gray-50 font-semibold">
+                        <tr>
+                          <td colSpan={3} className="px-4 lg:px-6 py-4 text-right text-gray-700">Total:</td>
+                          <td className="px-4 lg:px-6 py-4 text-gray-900">${parseFloat(bom.total_cost).toFixed(2)}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>
@@ -195,16 +215,16 @@ export default function BOMs() {
 
       {/* Generate Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold">Generate Bill of Materials</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl w-full sm:max-w-lg max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b sticky top-0 bg-white">
+              <h2 className="text-lg sm:text-xl font-semibold">Generate BOM</h2>
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 p-1">
                 <X size={24} />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">BOM Name *</label>
                 <input
@@ -236,21 +256,21 @@ export default function BOMs() {
                       <select
                         value={row.recipe_id}
                         onChange={(e) => updateRecipeRow(index, 'recipe_id', e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
                       >
                         <option value="">Select recipe...</option>
                         {recipes?.data.items.map((r) => (
                           <option key={r.id} value={r.id}>
-                            {r.name} ({parseFloat(r.yield_qty)} {r.yield_unit})
+                            {r.name}
                           </option>
                         ))}
                       </select>
                       <input
                         type="number"
-                        placeholder="Portions"
+                        placeholder="Qty"
                         value={row.portions}
                         onChange={(e) => updateRecipeRow(index, 'portions', e.target.value)}
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                       />
                       {formData.recipes.length > 1 && (
                         <button
@@ -270,7 +290,7 @@ export default function BOMs() {
                   className="mt-2 text-blue-600 hover:underline text-sm flex items-center gap-1"
                 >
                   <Plus size={16} />
-                  Add another recipe
+                  Add recipe
                 </button>
               </div>
 
@@ -278,17 +298,17 @@ export default function BOMs() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={generateMutation.isPending}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {generateMutation.isPending && <Loader2 className="animate-spin" size={18} />}
-                  Generate BOM
+                  Generate
                 </button>
               </div>
             </form>
