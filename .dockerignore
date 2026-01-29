@@ -1,14 +1,41 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
 venv/
-__pycache__/
-*.pyc
-*.pyo
+env/
+.venv/
+*.egg-info/
 .pytest_cache/
 .coverage
 htmlcov/
-*.db
-.env
-.git/
-.gitignore
-*.md
+
+# Node
+frontend/node_modules/
+frontend/.git/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docs (not needed in container)
 docs/
+
+# Tests (not needed in container)
 tests/
+
+# Local development
+*.db
+*.sqlite
+*.log
+
+# Website (separate deployment)
+website/

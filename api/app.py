@@ -5,11 +5,15 @@ Main application factory and configuration.
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from api.config import get_settings
 from api.routers import health_router, ingredients_router, recipes_router, bom_router, users_router
@@ -75,6 +79,24 @@ Recipe and ingredient cost management for food businesses.
     app.include_router(recipes_router)
     app.include_router(bom_router)
     app.include_router(users_router)
+    
+    # Serve frontend static files in production
+    frontend_dist = Path(__file__).parent.parent / "frontend" / "dist"
+    if frontend_dist.exists():
+        # Serve assets directory
+        app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="assets")
+        
+        # Serve index.html for all non-API routes (SPA fallback)
+        @app.get("/{full_path:path}")
+        async def serve_spa(request: Request, full_path: str):
+            # Don't intercept API routes
+            if full_path.startswith("api/") or full_path in ["docs", "redoc", "openapi.json"]:
+                return None
+            # Serve index.html for SPA routing
+            index_path = frontend_dist / "index.html"
+            if index_path.exists():
+                return FileResponse(index_path)
+            return {"error": "Not found"}
     
     return app
 

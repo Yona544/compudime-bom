@@ -1,3 +1,21 @@
+# Build frontend
+FROM node:20-slim AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy frontend package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy frontend source
+COPY frontend/ ./
+
+# Build
+RUN npm run build
+
+# Build Python backend
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -14,6 +32,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
+
+# Copy built frontend from builder stage
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 # Create non-root user
 RUN useradd -m appuser && chown -R appuser:appuser /app

@@ -18,27 +18,33 @@ BOM helps restaurants, bakeries, supermarket delis, and food businesses:
 
 ## Live Demo
 
-- **API:** https://bom-api.fly.dev
-- **Swagger Docs:** https://bom-api.fly.dev/docs
+- **Dashboard:** https://bom-api.fly.dev (React frontend)
+- **API Docs:** https://bom-api.fly.dev/docs
 - **Marketing Site:** https://bom-website.fly.dev
 
 ## Quick Start
 
 ```bash
-# Setup
+# Backend setup
 cd C:\scripts\BOM
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
 
-# Run
+# Run API
 python -m uvicorn api.app:app --reload --port 8001
 
-# Test
+# Frontend setup (in another terminal)
+cd frontend
+npm install
+npm run dev
+
+# Tests
 pytest tests/ -v
 ```
 
-Open http://localhost:8001/docs for the interactive API documentation.
+- **Frontend:** http://localhost:5173 (Vite dev server, proxies to API)
+- **API Docs:** http://localhost:8001/docs
 
 ## Features
 
@@ -69,6 +75,13 @@ BOM/
 │   ├── services/          # Business logic
 │   ├── schemas/           # Pydantic models
 │   └── app.py             # App factory
+├── frontend/              # React dashboard (Vite + TypeScript)
+│   ├── src/
+│   │   ├── pages/        # Dashboard, Ingredients, Recipes, BOMs
+│   │   ├── lib/          # API client, types
+│   │   └── App.tsx       # Main app with routing
+│   ├── package.json
+│   └── vite.config.ts
 ├── database/              # SQLAlchemy models
 ├── tests/                 # Test suite (122 tests)
 ├── docs/                  # Documentation
@@ -83,7 +96,7 @@ BOM/
 │   ├── Dockerfile
 │   └── fly.toml
 ├── fly.toml              # API deployment config
-├── Dockerfile            # API container
+├── Dockerfile            # Multi-stage (frontend + API)
 └── requirements.txt
 ```
 
@@ -114,10 +127,11 @@ See full API documentation at `/docs` or `/redoc`.
 ## Tech Stack
 
 - **Backend:** Python 3.11+, FastAPI, SQLAlchemy 2.0, Pydantic 2.x
+- **Frontend:** React 19, TypeScript, Vite, TailwindCSS, React Query
 - **Database:** PostgreSQL (production), SQLite (development)
 - **Testing:** pytest (122 tests, 93% coverage)
-- **Deployment:** Fly.io, Docker
-- **Website:** Static HTML/CSS (nginx)
+- **Deployment:** Fly.io, Docker (multi-stage build)
+- **Marketing Site:** Static HTML/CSS (nginx)
 
 ## Testing
 
