@@ -17,9 +17,22 @@ from fastapi.responses import FileResponse
 
 from api.config import get_settings
 from api.routers import health_router, ingredients_router, recipes_router, bom_router, users_router
-from database.database import init_database
+from api.services.auth_service import AuthService
+from database.database import init_database, SessionLocal
 
 logger = logging.getLogger(__name__)
+
+
+def seed_admin_user():
+    """Create the admin user if it doesn't exist."""
+    db = SessionLocal()
+    try:
+        auth_service = AuthService(db)
+        admin = auth_service.create_admin_if_not_exists()
+        if admin:
+            logger.info(f"Admin user ready: {admin.email}")
+    finally:
+        db.close()
 
 
 @asynccontextmanager
@@ -31,6 +44,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     
     # Startup
     init_database()
+    seed_admin_user()
     logger.info("Application started successfully")
     
     yield

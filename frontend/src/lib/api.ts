@@ -11,7 +11,7 @@ export const api = axios.create({
   },
 });
 
-// Add API key to requests
+// Add API key (session token) to requests
 api.interceptors.request.use((config) => {
   const apiKey = localStorage.getItem('bom_api_key');
   if (apiKey) {
@@ -77,7 +77,31 @@ export interface BOM {
   created_at: string;
 }
 
+export interface LoginResponse {
+  id: number;
+  email: string;
+  is_admin: boolean;
+  api_key: string;
+}
+
+export interface User {
+  id: number;
+  email: string;
+  is_admin: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
 // API Functions
+export const authApi = {
+  login: (email: string, password: string) => 
+    api.post<LoginResponse>('/api/v1/users/login', { email, password }),
+  me: () => api.get<User>('/api/v1/users/me'),
+  createTenant: (email: string, password: string) =>
+    api.post<User & { api_key: string }>('/api/v1/users', { email, password }),
+  listTenants: () => api.get<User[]>('/api/v1/users'),
+};
+
 export const ingredientsApi = {
   list: () => api.get<{ items: Ingredient[]; total: number }>('/api/v1/ingredients'),
   get: (id: number) => api.get<Ingredient>(`/api/v1/ingredients/${id}`),
@@ -103,9 +127,4 @@ export const bomApi = {
   generate: (data: { name: string; date: string; recipes: { recipe_id: number; portions: number }[] }) =>
     api.post<BOM>('/api/v1/bom/generate', data),
   delete: (id: number) => api.delete(`/api/v1/bom/${id}`),
-};
-
-export const usersApi = {
-  create: (email: string) => api.post<{ id: number; email: string; api_key: string }>('/api/v1/users', { email }),
-  me: () => api.get<{ id: number; email: string }>('/api/v1/users/me'),
 };

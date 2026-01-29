@@ -1,7 +1,7 @@
 """
 Authentication Service
 
-Handles API key validation and user authentication.
+Handles password-based authentication and user management.
 """
 
 import secrets
@@ -14,13 +14,18 @@ from database.models import User
 
 
 def generate_api_key() -> str:
-    """Generate a secure random API key."""
+    """Generate a secure random API key (used as session token)."""
     return secrets.token_urlsafe(32)
 
 
-def hash_api_key(api_key: str) -> str:
-    """Hash an API key for storage."""
-    return hashlib.sha256(api_key.encode()).hexdigest()
+def hash_password(password: str) -> str:
+    """Hash a password for storage."""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    """Verify a password against its hash."""
+    return hash_password(password) == password_hash
 
 
 class AuthService:
@@ -29,12 +34,31 @@ class AuthService:
     def __init__(self, db: Session):
         self.db = db
     
+    def authenticate(self, email: str, password: str) -> Optional[User]:
+        """
+        Authenticate a user with email and password.
+        Returns the user if credentials are valid, None otherwise.
+        """
+        user = self.db.query(User).filter(
+            User.email == email,
+            User.is_active == True,
+        ).first()
+        
+        if user is None:
+            return None
+        
+        if not verify_password(password, user.password_hash):
+            return None
+        
+        # Generate new API key (session token) on each login
+        user.api_key = generate_api_key()
+        self.db.commit()
+        
+        return user
+    
     def get_user_by_api_key(self, api_key: str) -> Optional[User]:
         """
-        Validate an API key and return the associated user.
-        
-        Note: In production, you'd want to hash the API key and compare hashes.
-        For simplicity, we're storing and comparing plain API keys.
+        Validate an API key (session token) and return the associated user.
         """
         if not api_key:
             return None
@@ -44,14 +68,15 @@ class AuthService:
             User.is_active == True,
         ).first()
     
-    def create_user(self, email: str, password_hash: str = "not-used") -> User:
-        """Create a new user with an API key."""
+    def create_user(self, email: str, password: str, is_admin: bool = False) -> User:
+        """Create a new user with email and password."""
         api_key = generate_api_key()
         
         user = User(
             email=email,
-            password_hash=password_hash,
+            password_hash=hash_password(password),
             api_key=api_key,
+            is_admin=is_admin,
             is_active=True,
         )
         
@@ -60,6 +85,20 @@ class AuthService:
         self.db.refresh(user)
         
         return user
+    
+    def create_admin_if_not_exists(self) -> Optional[User]:
+        """
+        Create the admin user if it doesn't exist.
+        Default admin: admin@compudime.com / 9999
+        """
+        admin_email = "admin@compudime.com"
+        admin_password = "9999"
+        
+        existing = self.db.query(User).filter(User.email == admin_email).first()
+        if existing:
+            return existing
+        
+        return self.create_user(admin_email, admin_password, is_admin=True)
     
     def regenerate_api_key(self, user_id: int) -> Optional[str]:
         """Regenerate API key for a user. Returns the new key."""
@@ -96,8 +135,9 @@ class AuthService:
         # Create new dev user
         user = User(
             email="dev@bom.local",
-            password_hash="dev-not-used",
+            password_hash=hash_password("dev123"),
             api_key=dev_api_key,
+            is_admin=False,
             is_active=True,
         )
         self.db.add(user)

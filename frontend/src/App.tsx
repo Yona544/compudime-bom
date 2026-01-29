@@ -1,17 +1,18 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
-import { LayoutDashboard, UtensilsCrossed, ChefHat, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutDashboard, UtensilsCrossed, ChefHat, ClipboardList, LogOut, Users } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Ingredients from './pages/Ingredients';
 import Recipes from './pages/Recipes';
 import RecipeDetail from './pages/RecipeDetail';
 import BOMs from './pages/BOMs';
+import Tenants from './pages/Tenants';
 import Login from './pages/Login';
 
 const queryClient = new QueryClient();
 
-function Layout({ children, onLogout }: { children: React.ReactNode; onLogout: () => void }) {
+function Layout({ children, onLogout, isAdmin }: { children: React.ReactNode; onLogout: () => void; isAdmin: boolean }) {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
@@ -71,6 +72,20 @@ function Layout({ children, onLogout }: { children: React.ReactNode; onLogout: (
             <ClipboardList size={20} />
             Bill of Materials
           </NavLink>
+
+          {isAdmin && (
+            <NavLink
+              to="/tenants"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50'
+                }`
+              }
+            >
+              <Users size={20} />
+              Manage Tenants
+            </NavLink>
+          )}
         </nav>
         
         <div className="p-4 border-t border-gray-200">
@@ -94,15 +109,20 @@ function Layout({ children, onLogout }: { children: React.ReactNode; onLogout: (
 
 function App() {
   const [apiKey, setApiKey] = useState<string | null>(localStorage.getItem('bom_api_key'));
+  const [isAdmin, setIsAdmin] = useState<boolean>(localStorage.getItem('bom_is_admin') === 'true');
 
-  const handleLogin = (key: string) => {
+  const handleLogin = (key: string, admin: boolean) => {
     localStorage.setItem('bom_api_key', key);
+    localStorage.setItem('bom_is_admin', admin ? 'true' : 'false');
     setApiKey(key);
+    setIsAdmin(admin);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('bom_api_key');
+    localStorage.removeItem('bom_is_admin');
     setApiKey(null);
+    setIsAdmin(false);
   };
 
   if (!apiKey) {
@@ -116,13 +136,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Layout onLogout={handleLogout}>
+        <Layout onLogout={handleLogout} isAdmin={isAdmin}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/ingredients" element={<Ingredients />} />
             <Route path="/recipes" element={<Recipes />} />
             <Route path="/recipes/:id" element={<RecipeDetail />} />
             <Route path="/bom" element={<BOMs />} />
+            {isAdmin && <Route path="/tenants" element={<Tenants />} />}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Layout>
