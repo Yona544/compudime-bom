@@ -1,0 +1,276 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Auth tables (managed by Better Auth)
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Stripe fields
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+
+  // Relations
+  sessions             Session[]
+  accounts             Account[]
+  ingredients          Ingredient[]
+  recipes              Recipe[]
+  suppliers            Supplier[]
+  storageAreas         StorageArea[]
+  boms                 BillOfMaterials[]
+  ingredientCategories IngredientCategory[]
+  recipeCategories     RecipeCategory[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                     String   @id @default(cuid())
+  userId                 String
+  accountId              String
+  providerId             String
+  accessToken            String?
+  refreshToken           String?
+  accessTokenExpiresAt   DateTime?
+  refreshTokenExpiresAt  DateTime?
+  scope                  String?
+  idToken                String?
+  password               String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
+}
+
+// App tables
+model IngredientCategory {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  name      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredients IngredientCategoryAssignment[]
+
+  @@unique([userId, name])
+}
+
+model Ingredient {
+  id               Int      @id @default(autoincrement())
+  userId           String
+  name             String
+  description      String?
+  purchaseUnit     String
+  purchaseQty      Decimal  @db.Decimal(10, 3)
+  purchasePrice    Decimal  @db.Decimal(10, 2)
+  recipeUnit       String
+  conversionFactor Decimal  @db.Decimal(10, 4)
+  yieldPercent     Decimal  @default(100) @db.Decimal(5, 2)
+  minStockLevel    Decimal? @db.Decimal(10, 3)
+  currentStock     Decimal? @db.Decimal(10, 3)
+  supplierId       Int?
+  storageAreaId    Int?
+  allergens        Json?
+  nutrition        Json?
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user        User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supplier    Supplier?                      @relation(fields: [supplierId], references: [id])
+  storageArea StorageArea?                   @relation(fields: [storageAreaId], references: [id])
+  categories  IngredientCategoryAssignment[]
+  recipeItems RecipeItem[]
+  bomItems    BOMItem[]
+
+  @@unique([userId, name])
+}
+
+model IngredientCategoryAssignment {
+  ingredientId Int
+  categoryId   Int
+
+  ingredient Ingredient         @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  category   IngredientCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([ingredientId, categoryId])
+}
+
+model RecipeCategory {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  name      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipes RecipeCategoryAssignment[]
+
+  @@unique([userId, name])
+}
+
+model Recipe {
+  id            Int      @id @default(autoincrement())
+  userId        String
+  name          String
+  description   String?
+  yieldQty      Decimal  @db.Decimal(10, 3)
+  yieldUnit     String
+  prepTime      Int?
+  cookTime      Int?
+  sellingPrice  Decimal? @db.Decimal(10, 2)
+  targetCostPct Decimal? @db.Decimal(5, 2)
+  instructions  String?
+  notes         String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user        User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories  RecipeCategoryAssignment[]
+  items       RecipeItem[]
+  parentItems RecipeItem[]               @relation("SubRecipe")
+  bomItems    BOMItem[]
+
+  @@unique([userId, name])
+}
+
+model RecipeCategoryAssignment {
+  recipeId   Int
+  categoryId Int
+
+  recipe   Recipe         @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  category RecipeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, categoryId])
+}
+
+model RecipeItem {
+  id           Int      @id @default(autoincrement())
+  recipeId     Int
+  ingredientId Int?
+  subRecipeId  Int?
+  quantity     Decimal  @db.Decimal(10, 3)
+  unit         String
+  sortOrder    Int      @default(0)
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  recipe     Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient? @relation(fields: [ingredientId], references: [id])
+  subRecipe  Recipe?     @relation("SubRecipe", fields: [subRecipeId], references: [id])
+
+  @@index([recipeId])
+}
+
+model Supplier {
+  id                   Int      @id @default(autoincrement())
+  userId               String
+  name                 String
+  contactName          String?
+  phone                String?
+  email                String?
+  address              String?
+  customerNumber       String?
+  salesRepFirstName    String?
+  salesRepLastName     String?
+  salesRepEmail        String?
+  salesRepPhone        String?
+  preferredOrderMethod String?
+  deliveryDays         Json?
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredients Ingredient[]
+
+  @@unique([userId, name])
+}
+
+model StorageArea {
+  id              Int      @id @default(autoincrement())
+  userId          String
+  name            String
+  location        String?
+  temperatureZone String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredients Ingredient[]
+
+  @@unique([userId, name])
+}
+
+model BillOfMaterials {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  name      String
+  date      DateTime @db.Date
+  totalCost Decimal? @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items BOMItem[]
+}
+
+model BOMItem {
+  id           Int      @id @default(autoincrement())
+  bomId        Int
+  recipeId     Int?
+  ingredientId Int?
+  portions     Decimal? @db.Decimal(10, 3)
+  totalQty     Decimal? @db.Decimal(10, 3)
+  unit         String?
+  unitCost     Decimal? @db.Decimal(10, 4)
+  lineCost     Decimal? @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+
+  bom        BillOfMaterials @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  recipe     Recipe?         @relation(fields: [recipeId], references: [id])
+  ingredient Ingredient?     @relation(fields: [ingredientId], references: [id])
+
+  @@index([bomId])
+}

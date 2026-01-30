@@ -37,6 +37,11 @@ build/
 # Logs
 *.log
 
+# Node.js
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+
 # OS
 .DS_Store
 Thumbs.db

@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bom-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bom
+    ports:
+      - "5432:5432"
+    volumes:
+      - bom_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  bom_postgres_data:
